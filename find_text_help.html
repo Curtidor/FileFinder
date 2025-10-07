@@ -1,155 +1,260 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>Find-Text.ps1 — User Guide</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Find-Text (find_text.ps1) — Usage & Examples</title>
 <style>
-  :root{
-    --bg:#0b1220; --card:#121a2a; --ink:#e8eefc; --muted:#9bb0d4;
-    --pri:#6aa4ff; --acc:#08d1b9; --code:#0f172a; --kbd:#1e293b; --border:#263145;
-  }
-  html,body{background:var(--bg); color:var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; line-height:1.55; margin:0; padding:0}
-  a{color:var(--acc); text-decoration:none} a:hover{text-decoration:underline}
-  .wrap{max-width:1000px; margin:0 auto; padding:40px 20px}
-  h1,h2,h3{line-height:1.2; margin:1.4em 0 .6em}
-  h1{font-size:2rem}
-  h2{font-size:1.4rem; color:var(--pri)}
-  h3{font-size:1.1rem; color:var(--acc)}
-  p{color:var(--ink); margin:.6em 0}
-  .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow: 0 6px 30px #00000033; margin:18px 0}
-  code, pre{font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size:.95em}
-  code{background:var(--code); color:#dbeafe; padding:2px 6px; border-radius:8px; border:1px solid #1f2c46}
-  pre{background:var(--code); color:#e5edff; border:1px solid #1f2c46; border-radius:12px; padding:14px; overflow:auto}
-  kbd{background:var(--kbd); border:1px solid #334155; border-bottom-width:3px; padding:2px 6px; border-radius:8px; font-weight:600}
-  table{border-collapse:collapse; width:100%}
-  th,td{border:1px solid var(--border); padding:10px; vertical-align:top}
-  th{background:#0e1830; color:#cfe0ff; text-align:left}
-  .hint{color:var(--muted); font-size:.92rem}
-  .pill{display:inline-block; border:1px solid var(--border); background:#0f1931; padding:.15rem .5rem; border-radius:999px; color:#cfe0ff; font-weight:600; font-size:.8rem}
-  .grid{display:grid; gap:16px}
-  @media (min-width:900px){ .grid-2{grid-template-columns:1fr 1fr} }
-  .ul{margin:.4em 0 .9em 1.2em}
-  .ul li{margin:.2em 0}
+  :root { color-scheme: light dark; }
+  body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; }
+  header { padding: 24px 20px; background: linear-gradient(120deg,#4f46e5 0,#7c3aed 100%); color: #fff; }
+  header h1 { margin: 0 0 6px 0; font-size: 28px; }
+  header p { margin: 0; opacity: 0.95; }
+  main { padding: 24px 20px; max-width: 1100px; margin: 0 auto; }
+  h2 { margin-top: 36px; border-bottom: 1px solid #e5e7eb; padding-bottom: 6px; }
+  h3 { margin-top: 26px; }
+  code, pre, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  pre { background: #0b102026; padding: 14px; border-radius: 8px; overflow: auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+  .card { border: 1px solid #e5e7eb33; border-radius: 10px; padding: 14px; }
+  .tag { display: inline-block; padding: 2px 8px; border: 1px solid #e5e7eb88; border-radius: 999px; font-size: 12px; margin-right: 6px; }
+  .ok { color: #16a34a; }
+  .warn { color: #ca8a04; }
+  .muted { opacity: 0.8; }
+  .small { font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { padding: 8px 10px; border-bottom: 1px solid #e5e7eb55; vertical-align: top; }
+  th { text-align: left; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>Find-Text.ps1 — Fast file &amp; content search for Windows PowerShell</h1>
-  <p class="hint">Works on Windows PowerShell 5.1 and PowerShell 7+. Supports filenames, content (txt/docx/xlsx/pptx/pdf/code), fuzzy name matching, directory excludes, depth limits, and more.</p>
+<header>
+  <h1>Find-Text — <span class="small">PowerShell file & content search</span></h1>
+  <p>Script: <code>find_text.ps1</code> • Works on Windows PowerShell 5.1 and PowerShell 7+</p>
+</header>
 
-  <div class="card">
-    <h2>Quick Start</h2>
-<pre><code># Search file contents for a phrase with surrounding snippet
-.\find_text.ps1 -Query "example phrase" -Content -Snippet
+<main>
+  <p class="muted">This page documents all parameters and shows real command examples. Copy any example into PowerShell and tweak paths/terms.</p>
 
-# Include folder trace while traversing
-.\find_text.ps1 -Query "invoice" -Roots "D:\Docs" -Content -Snippet -ShowFolders
+  <h2>Quick Start</h2>
+  <pre><code># Search names & content under current folder
+.\find_text.ps1 -Query "Camera::SetPosition" -Content -Snippet
 
-# Restrict to code files and search text & names
-.\find_text.ps1 -Queries "Camera::SetPosition","Vector3" -IncludeExt cpp,h,hpp,inl -Content -Snippet
+# Multiple terms (match any of them)
+.\find_text.ps1 -Queries "resource","index" -Content -Snippet
 
-# Exclude build/venv folders and limit depth
-.\find_text.ps1 -Query "TODO" -ExcludeDir bin,obj,.git,__pycache__,.venv -MaxDepth 4 -Content
+# Whole-word matching for both names and content
+.\find_text.ps1 -Queries "resource","index" -WholeWord -Content -Snippet
 
-# Export results
-.\find_text.ps1 -Query "contract" -Content -ExportCsv "C:\temp\find-text.csv"
-.\find_text.ps1 -Queries "alpha","beta" -AsJson &gt; results.json</code></pre>
-    <p class="hint">Tip: <kbd>-Query</kbd> is a single search term. <kbd>-Queries</kbd> lets you pass multiple terms.</p>
-  </div>
+# Scan a specific root, include only code extensions
+.\find_text.ps1 -Query "SetPosition" -Content -Roots "C:\Code\Project" -IncludeExt cpp,h,hpp,inl -Snippet</code></pre>
 
-  <div class="card">
-    <h2>Key Features</h2>
-    <ul class="ul">
-      <li><span class="pill">Name search</span> plain, wildcard (<code>-Wildcard</code>), or regex (<code>-Regex</code>) with optional fuzzy scoring.</li>
-      <li><span class="pill">Content search</span> for <strong>txt, md, csv, log, ini</strong>; Office: <strong>docx, xlsx, pptx</strong>; PDF (via <code>pdftotext.exe</code>); code: <strong>cpp, h, hpp, inl, cs, java, py, js, ts, rs, go, swift, kt, m, mm, ps1, psm1, bat, cmd, sh, yaml, yml, json, xml</strong>.</li>
-      <li><span class="pill">Snippet preview</span> around the first content hit (enable with <code>-Snippet</code>).</li>
-      <li><span class="pill">Traversal controls</span> <code>-ExcludeDir</code>, <code>-MaxDepth</code>, <code>-ShowFolders</code> (prints every scanned directory).</li>
-      <li><span class="pill">Filters</span> <code>-Roots</code>, <code>-IncludeExt</code>, <code>-ExcludeExt</code>, <code>-Since</code>, <code>-MinSizeKB</code>, <code>-MaxSizeKB</code>, <code>-MaxResults</code>.</li>
-      <li><span class="pill">Flexible output</span> table/list (default), JSON (<code>-AsJson</code>), CSV export (<code>-ExportCsv</code>).</li>
-    </ul>
-  </div>
+  <h2>Parameters & Examples</h2>
 
-  <div class="card">
-    <h2>Parameters</h2>
-    <div class="grid grid-2">
-      <div>
-        <table>
-          <tr><th>Parameter</th><th>Description</th></tr>
-          <tr><td><code>-Query</code></td><td>Single search term (name &amp; content). Combine with <code>-Regex</code> or <code>-Wildcard</code> if desired.</td></tr>
-          <tr><td><code>-Queries</code></td><td>Array of terms (logical OR). Example: <code>-Queries "alpha","beta"</code>.</td></tr>
-          <tr><td><code>-NameOnly</code></td><td>Only match filenames/paths; skip content reading.</td></tr>
-          <tr><td><code>-Content</code></td><td>Search inside supported file types.</td></tr>
-          <tr><td><code>-Snippet</code></td><td>Show an excerpt around the first content match.</td></tr>
-          <tr><td><code>-Fuzzy</code></td><td>Fuzzy scoring for name matches (on by default unless explicitly disabled).</td></tr>
-          <tr><td><code>-Regex</code> / <code>-Wildcard</code></td><td>Switch name matching mode. Without either, plain substring match is used.</td></tr>
-          <tr><td><code>-Roots</code></td><td>One or more start folders. Default is the current directory.</td></tr>
-          <tr><td><code>-IncludeExt</code> / <code>-ExcludeExt</code></td><td>Whitelist/blacklist by extension (<em>without</em> dot), e.g. <code>-IncludeExt cpp,h,hpp</code>.</td></tr>
-        </table>
-      </div>
-      <div>
-        <table>
-          <tr><th>Parameter</th><th>Description</th></tr>
-          <tr><td><code>-ExcludeDir</code></td><td>Skip directories by name (case-insensitive). Defaults: <code>bin,obj,.git,node_modules,__pycache__,.idea,.vs</code>.</td></tr>
-          <tr><td><code>-MaxDepth</code></td><td>Limit recursion depth (0 = unlimited).</td></tr>
-          <tr><td><code>-Since</code></td><td>Only files modified since this date/time. Example: <code>-Since "2025-01-01"</code>.</td></tr>
-          <tr><td><code>-MinSizeKB</code> / <code>-MaxSizeKB</code></td><td>Filter by file size in KB.</td></tr>
-          <tr><td><code>-MaxResults</code></td><td>Stop after N matches (default 500).</td></tr>
-          <tr><td><code>-ShowFolders</code></td><td>Print each directory as it’s scanned (prefixed with <code>[scan]</code>).</td></tr>
-          <tr><td><code>-EnablePdf</code></td><td>Enable PDF content search (requires <code>pdftotext.exe</code> in PATH or common locations).</td></tr>
-          <tr><td><code>-ExportCsv</code> / <code>-AsJson</code></td><td>Export to CSV or emit JSON instead of formatted table.</td></tr>
-        </table>
-      </div>
+  <table>
+    <thead>
+      <tr><th>Parameter</th><th>Description</th><th>Example</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="mono">-Query &lt;string&gt;</td>
+        <td>Single search term.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Vector3" -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Queries &lt;string[]&gt;</td>
+        <td>Multiple search terms (logical OR). All features (-Regex, -Wildcard, -WholeWord) apply across the set.</td>
+        <td><pre><code>.\find_text.ps1 -Queries "resource","index","toc" -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Roots &lt;string[]&gt;</td>
+        <td>Folders to scan. Default is your current directory.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Camera" -Roots "C:\Dev\Game","D:\SDK" -Content</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-IncludeExt &lt;string[]&gt;</td>
+        <td>Restrict to given extensions (no dot). Overrides default set.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Window" -IncludeExt cpp,h,hpp,inl -Content</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-ExcludeExt &lt;string[]&gt;</td>
+        <td>Skip these extensions.</td>
+        <td><pre><code>.\find_text.ps1 -Query "config" -Content -ExcludeExt log,ini</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-NameOnly</td>
+        <td>Only match file name/path (skip content scanning). Fastest.</td>
+        <td><pre><code>.\find_text.ps1 -Query "camera.cpp" -NameOnly</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Content</td>
+        <td>Enable content scanning (txt, md, csv, log, ini, docx, xlsx, pptx, pdf via pdftotext.exe, and code files).</td>
+        <td><pre><code>.\find_text.ps1 -Queries "SetPosition","Vector3" -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Mode (Auto|Indexed|Brute)</td>
+        <td>Reserved/compat flag (current builds operate similarly for all). Keep as <code>Auto</code>.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Camera" -Content -Mode Auto</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Since &lt;datetime&gt;</td>
+        <td>Only files modified on or after this date.</td>
+        <td><pre><code>.\find_text.ps1 -Query "TODO" -Content -Since "2024-12-01"</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-MinSizeKB / -MaxSizeKB</td>
+        <td>Filter by file size in KB.</td>
+        <td><pre><code>.\find_text.ps1 -Query "error" -Content -MinSizeKB 4 -MaxSizeKB 10240</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-MaxResults &lt;int&gt;</td>
+        <td>Stop after N hits (default 500).</td>
+        <td><pre><code>.\find_text.ps1 -Query "Vector3" -Content -MaxResults 50</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Fuzzy</td>
+        <td>Fuzzy name/path matching (ON by default unless you pass <code>-Fuzzy:$false</code>).</td>
+        <td><pre><code>.\find_text.ps1 -Query "Camra" -Content -Fuzzy  # typo still matches "Camera"</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Regex</td>
+        <td>Use a regex across the terms (content & name/path). Case-insensitive by default in examples.</td>
+        <td><pre><code>.\find_text.ps1 -Query "(?i)Camera::Set(Position|Rotation)\s*\(" -Regex -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Wildcard</td>
+        <td>Use PowerShell <code>-like</code> patterns for name/path (e.g., <code>*camera*.cpp</code>).</td>
+        <td><pre><code>.\find_text.ps1 -Query "*camera*.cpp" -Wildcard -NameOnly</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-WholeWord</td>
+        <td><b>NEW:</b> Whole-word matching for both name/path and content. (Uses <code>\b…\b</code> boundaries)</td>
+        <td><pre><code>.\find_text.ps1 -Queries "resource","index" -WholeWord -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-Snippet</td>
+        <td>Show a short excerpt around the first content hit.</td>
+        <td><pre><code>.\find_text.ps1 -Query "SetPosition" -Content -Snippet</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-EnablePdf</td>
+        <td>Enable PDF content search using <code>pdftotext.exe</code>. (Install Poppler, add to PATH or set to known location.)</td>
+        <td><pre><code>.\find_text.ps1 -Query "Design Spec" -Content -EnablePdf -Roots "C:\Docs"</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-ShowFolders</td>
+        <td>Print each directory as it’s scanned.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Camera" -Content -ShowFolders</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-ExcludeDir &lt;string[]&gt;</td>
+        <td>Skip whole folders by name (case-insensitive). Defaults include <code>bin, obj, .git, node_modules, .vs</code>, etc.</td>
+        <td><pre><code>.\find_text.ps1 -Query "Camera" -Content -ExcludeDir ".git",".vs","node_modules"</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-MaxDepth &lt;int&gt;</td>
+        <td>Limit recursion depth (0 = unlimited).</td>
+        <td><pre><code>.\find_text.ps1 -Query "Vector3" -Content -Roots "C:\Code" -MaxDepth 3</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-ExportCsv &lt;path&gt;</td>
+        <td>Write results to CSV and exit (no console table).</td>
+        <td><pre><code>.\find_text.ps1 -Query "TODO" -Content -ExportCsv "C:\temp\find_text_results.csv"</code></pre></td>
+      </tr>
+      <tr>
+        <td class="mono">-AsJson</td>
+        <td>Emit JSON to stdout and exit (great for automation).</td>
+        <td><pre><code>.\find_text.ps1 -Queries "resource","index" -Content -AsJson &gt; results.json</code></pre></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What gets searched (Content)</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Text-like</h3>
+      <p><code>txt, md, csv, log, ini, json, xml, yaml, yml, ps1, psm1, bat, cmd, sh</code></p>
+      <p class="small muted">Read via <code>Get-Content -Raw</code>. Large files are clipped to ~2MB before matching.</p>
+    </div>
+    <div class="card">
+      <h3>Code files</h3>
+      <p><code>cpp, c, cc, h, hpp, inl, cs, java, py, js, ts, rs, go, swift, kt, m, mm</code></p>
+      <p class="small muted">Same pipeline as text files. Regex/WholeWord respected.</p>
+    </div>
+    <div class="card">
+      <h3>Office docs</h3>
+      <p><code>docx, xlsx, pptx</code> parsed via ZIP XML, tags stripped, whitespace normalized.</p>
+      <p class="small muted">We search extracted text (then snippet).</p>
+    </div>
+    <div class="card">
+      <h3>PDF (optional)</h3>
+      <span class="tag">Requires Poppler</span>
+      <p>Enable with <code>-EnablePdf</code>. We call <code>pdftotext.exe</code> and search the plain text output.</p>
     </div>
   </div>
 
-  <div class="card">
-    <h2>Multiple-Term Searches</h2>
-    <h3>OR (any term) — default</h3>
-<pre><code>.\find_text.ps1 -Queries "Camera::SetPosition","Vector3","position" -Content -Snippet</code></pre>
-    <h3>Regex OR</h3>
-<pre><code>.\find_text.ps1 -Query "Camera::SetPosition|Vector3|position" -Regex -Content</code></pre>
-    <h3>AND (all terms) with regex lookaheads</h3>
-<pre><code>.\find_text.ps1 -Query "(?is)(?=.*Camera::SetPosition)(?=.*Vector3)(?=.*position)" -Regex -Content</code></pre>
-    <p class="hint">Add <code>?i</code> for case-insensitivity; <code>?s</code> to let dot match newlines. Example uses both.</p>
+  <h2>Matching behavior</h2>
+  <ul>
+    <li><b>Default</b>: case-insensitive substring match for names and content.</li>
+    <li><b>-WholeWord</b>: adds <code>\b</code> word boundaries for names and content. Great for terms like <code>index</code> vs <code>indexer</code>.</li>
+    <li><b>-Regex</b>: treats your terms as regular expressions. If you pass multiple terms via <code>-Queries</code>, we OR them together internally.</li>
+    <li><b>-Wildcard</b>: PowerShell <code>-like</code> matching (names/paths only). Use with patterns like <code>*camera*.cpp</code>.</li>
+    <li><b>-Fuzzy</b>: helps catch typos in name/path matching (enabled by default; disable with <code>-Fuzzy:$false</code>).</li>
+  </ul>
+
+  <h2>Performance tips</h2>
+  <ul>
+    <li>Prefer scoping with <code>-Roots</code> to a specific project or drive.</li>
+    <li>Use <code>-IncludeExt</code> to narrow the set (e.g., only <code>cpp,h,hpp,inl</code> for C++ code).</li>
+    <li>Skip huge trees with <code>-ExcludeDir</code> (e.g., <code>node_modules,.git,bin,obj,.vs,dist,build</code>).</li>
+    <li>Use <code>-NameOnly</code> for a quick pass, then add <code>-Content</code> if needed.</li>
+    <li>Cap results with <code>-MaxResults</code> when exploring very large workspaces.</li>
+  </ul>
+
+  <h2>Examples by scenario</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Find a function in C++</h3>
+      <pre><code>.\find_text.ps1 -Query "Camera::SetPosition" `
+  -Roots "C:\Dev\ConsoleGraphX\Engine" `
+  -IncludeExt cpp,h,hpp,inl `
+  -Content -Snippet</code></pre>
+    </div>
+    <div class="card">
+      <h3>Whole-word doc search</h3>
+      <pre><code>.\find_text.ps1 -Queries "resource","index" `
+  -WholeWord -Content -Snippet `
+  -Roots "C:\Docs"</code></pre>
+    </div>
+    <div class="card">
+      <h3>Regex across variants</h3>
+      <pre><code>.\find_text.ps1 -Query "(?i)Camera::Set(Position|Rotation)\s*\(" `
+  -Regex -Content -Snippet `
+  -Roots "D:\Src\Engine"</code></pre>
+    </div>
+    <div class="card">
+      <h3>Skip noisy folders</h3>
+      <pre><code>.\find_text.ps1 -Query "TODO" -Content `
+  -ExcludeDir ".git",".vs","node_modules","dist","build"</code></pre>
+    </div>
   </div>
 
-  <div class="card">
-    <h2>Performance Tips</h2>
-    <ul class="ul">
-      <li>Use <code>-IncludeExt</code> to reduce the file set when searching content (e.g., only <code>cpp,h,hpp</code>).</li>
-      <li>Exclude bulky directories with <code>-ExcludeDir</code> (e.g., <code>.git,node_modules,bin,obj,__pycache__</code>).</li>
-      <li>Cap recursion with <code>-MaxDepth</code> and limit output via <code>-MaxResults</code>.</li>
-      <li>For PDFs, keep <code>-EnablePdf</code> off unless needed; conversion adds overhead.</li>
-    </ul>
-  </div>
+  <h2>Output formats</h2>
+  <ul>
+    <li><b>Default:</b> a detailed list with fields: <code>Name, Ext, SizeKB, LastWrite, Hit, Path, Snippet</code>.</li>
+    <li><b>CSV:</b> <code>-ExportCsv &lt;path&gt;</code> writes a CSV and exits.</li>
+    <li><b>JSON:</b> <code>-AsJson</code> writes JSON to stdout and exits.</li>
+  </ul>
 
-  <div class="card">
-    <h2>Troubleshooting</h2>
-    <ul class="ul">
-      <li><strong>No matches but you’re sure it exists?</strong> Try <code>-Content</code> and broaden the text (e.g., <code>"Camera::"</code>), or switch to <code>-Regex</code> to ignore whitespace or qualifiers.</li>
-      <li><strong>Weird characters in snippets (â€¦)?</strong> That’s a console encoding artifact. The actual file path is valid—open it in your editor.</li>
-      <li><strong>PATH with spaces</strong>: Always wrap in quotes, e.g., <code>-Roots "C:\Users\me\My Project"</code>.</li>
-      <li><strong>Large files</strong>: The tool only reads up to ~2MB per file to keep searches snappy.</li>
-    </ul>
-  </div>
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li class="ok">No matches? Try removing <code>-WholeWord</code> (boundaries can filter out partials), or search with <code>-Regex</code>/<code>-Wildcard</code>.</li>
+    <li class="ok">PDF content isn’t found? Verify Poppler is installed and <code>pdftotext.exe</code> is on PATH or in a known location; re-run with <code>-EnablePdf</code>.</li>
+    <li class="warn">Very large trees can take time—narrow with <code>-Roots</code>, <code>-IncludeExt</code>, <code>-MaxDepth</code>, or <code>-ExcludeDir</code>.</li>
+  </ul>
 
-  <div class="card">
-    <h2>Examples You Can Paste</h2>
-<pre><code># Find a C++ method anywhere under Desktop
-.\find_text.ps1 -Query "Camera::SetPosition" -Roots "C:\Users\you\Desktop" -IncludeExt cpp,h,hpp,inl -Content -Snippet -ShowFolders
-
-# Find PDF mention (enable converter)
-.\find_text.ps1 -Query "Resource Index" -Roots "C:\Docs" -Content -EnablePdf -Snippet
-
-# Name-only scan of markdown notes, with folder trace
-.\find_text.ps1 -Query "meeting notes" -Roots "D:\notes" -IncludeExt md -NameOnly -ShowFolders
-
-# JSON output for scripting
-.\find_text.ps1 -Queries "error","failed","exception" -IncludeExt log,txt -Content -AsJson &gt; logs.json</code></pre>
-  </div>
-
-  <p class="hint">Script by you &amp; your AI pair—have fun!</p>
-</div>
+  <p class="muted small">© You. This help page is just a friendly wrapper for your script.</p>
+</main>
 </body>
 </html>
